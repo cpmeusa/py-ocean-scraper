@@ -13,73 +13,58 @@ Before running the script, ensure you have the following:
 
 ## Installation
 
-1. Clone the repository or download the script files.
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/your-repository.git
+   ```
 
-2. Install the required Python packages by running the following command:
+2. Install the required Python packages:
    ```
    pip install -r requirements.txt
    ```
 
-3. Place the service account credentials JSON file in the same directory as the script and update the `SERVICE_ACCOUNT_CREDS` variable in the `config.py` file with the path to the credentials file.
-
 ## Configuration
 
-1. Update the `config.py` file with the necessary configuration details:
-   - `SERVICE_ACCOUNT_CREDS`: Path to the service account credentials JSON file.
-   - `SPREADSHEET_ID`: ID of the Google Sheet to update.
-   - `RANGE_NAME`: Range name of the sheet to update (e.g., "Sheet1!A1").
-   - `USERNAME`: Username for logging into the website.
-   - `PASSWORD`: Password for logging into the website.
+1. Create a copy of the `config_sample.py` file and rename it to `config.py`.
+
+2. Update the `config.py` file with the necessary configuration details:
+   - `SERVICE_ACCOUNT_CREDS`: Replace the placeholders with your actual service account credentials.
+   - `MINER_ADDRESS`: Your Bitcoin address for mining.
+   - `SHEET_ID`: ID of the Google Sheet to update.
+   - `CHECK_INTERVAL`: Interval for checking the share log (in seconds).
+   - Optional configuration:
+     - `DOWNLOADS_PATH`: Customize the download location (default is "~/Downloads").
+     - `MAX_DOWNLOAD_WAIT`: Maximum wait time for downloads (default is 30 seconds).
+
+## BTC Price Cache
+
+The script utilizes a caching mechanism to store historical BTC prices and avoid making unnecessary API requests. The cached prices are stored in a JSON file named `btc_price_cache.json`.
+
+- When the script encounters a new timestamp, it fetches the corresponding BTC price from the API and stores it in the cache file.
+- If the script encounters a timestamp that already exists in the cache, it retrieves the price from the cache file instead of making an API request.
+- The cache file is automatically created and updated as the script runs.
 
 ## Usage
 
-1. Run the `main.py` script using the following command:
+1. Ensure that you have completed the installation and configuration steps.
+
+2. Run the script:
    ```
    python main.py
    ```
 
-2. The script will perform the following steps:
-   - Launch a Chrome browser and navigate to the login page.
-   - Log in using the provided username and password.
-   - Navigate to the share log page and extract the data.
-   - Fetch historical BTC prices for each timestamp.
-   - Calculate cost basis, pool fees cost basis, current value, and gain/loss using formulas.
-   - Update the Google Sheet with the formatted data.
-   - Apply formatting to the sheet, including date/time format, currency format, and conditional formatting for gain/loss.
+   The script will automatically download the share log, extract the data, calculate cost basis and gain/loss, and update the Google Sheet.
 
-3. Once the script finishes executing, the Google Sheet will be updated with the latest share log data and calculations.
-
-## Functionality
-
-The script performs the following main tasks:
-
-1. **Data Extraction**: It uses Selenium to automate the process of logging into the website, navigating to the share log page, and extracting the relevant data from the HTML table.
-
-2. **Data Formatting**: The extracted data is formatted and processed using Pandas. The script applies necessary transformations, such as converting timestamps to a readable format and calculating cost basis and gain/loss using formulas.
-
-3. **Historical BTC Prices**: The script fetches historical BTC prices for each timestamp using an external API. This allows for accurate calculation of cost basis and gain/loss in USD.
-
-4. **Google Sheet Update**: The formatted data is then uploaded to a specified Google Sheet using the Google Sheets API. The script updates the sheet with the latest data and applies formatting, such as date/time format, currency format, and conditional formatting for gain/loss.
-
-5. **Automation**: The script automates the entire process, from data extraction to updating the Google Sheet, eliminating the need for manual intervention.
+3. To run the script continuously, you can set up a cron job or a task scheduler to execute the script at regular intervals.
 
 ## Building an Executable
 
-To create a standalone executable file for the script, you can use PyInstaller. Follow these steps:
+If you want to build an executable file for the script, you can use PyInstaller. Run the following command:
+```
+pyinstaller --onefile main.py
+```
 
-1. Install PyInstaller by running the following command:
-   ```
-   pip install pyinstaller
-   ```
-
-2. Navigate to the directory containing the `main.py` script.
-
-3. Run the following command to create an executable file:
-   ```
-   pyinstaller --onefile main.py
-   ```
-
-4. The executable file will be generated in the `dist` directory.
+This will generate an executable file in the `dist` directory.
 
 ## Troubleshooting
 

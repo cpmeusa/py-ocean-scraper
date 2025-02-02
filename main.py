@@ -33,20 +33,32 @@ BTC_PRICE_CACHE_FILE = "btc_price_cache.json"
 def setup_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
-    options = webdriver.ChromeOptions()
     options.add_argument('--ignore-certificate-errors')
-    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    downloads_path = os.path.expanduser("~/Downloads")
+    # Set download preferences so the CSV is automatically saved to ~/Downloads
+    prefs = {
+        "download.default_directory": downloads_path,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True
+    }
+    options.add_experimental_option("prefs", prefs)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # Enable file downloads in headless mode
+    driver.execute_cdp_cmd("Page.setDownloadBehavior", {"behavior": "allow", "downloadPath": downloads_path})
+    return driver
 
 def get_ocean_data(driver):
     try:
         url = f"https://ocean.xyz/stats/{MINER_ADDRESS}"
         driver.get(url)
-        
-        download_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//button[@class='csv-download-button' and contains(text(), 'Download CSV')]"))
+        # Allow additional time for the page to load
+        time.sleep(5)
+        download_button = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Download CSV')]"))
         )
         download_button.click()
-        time.sleep(5)
+        # Wait for the download to complete; adjust as needed
+        time.sleep(10)
         
         downloads_path = os.path.expanduser("~/Downloads")
         csv_files = [f for f in os.listdir(downloads_path) if f.endswith('.csv')]
